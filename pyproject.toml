@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "xmrg-processing"
+name = "xmrgprocessing"
 version = "0.2.2"
 description = ""
 authors = ["DANRAMAGE <ChiefDan@gmail.com>"]
