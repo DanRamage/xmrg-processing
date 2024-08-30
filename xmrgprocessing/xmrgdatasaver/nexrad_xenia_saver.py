@@ -133,6 +133,11 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                     self._xenia_db.session.commit()
                                 except Exception as e:
                                     self._logger.exception(e)
+                                else:
+                                    self._logger.debug(
+                                        f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} updated "
+                                        f"weighted avg: {avg} in {time.time() - add_obs_start_time} seconds.")
+
                                 '''
                                 try:
                                     add_obs_start_time = time.time()
@@ -146,10 +151,6 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                     self._xenia_db.connection.execute(db_update_rec)
                                 except Exception as e:
                                     self._logger.exception(e)
-                                else:
-                                    self._logger.debug(
-                                        f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} updated "
-                                        f"weighted avg: {avg} in {time.time() - add_obs_start_time} seconds.")
                                 '''
 
                         else:
