@@ -51,6 +51,13 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                 self._xenia_db.session.rollback()
                 self._logger.error(f"Failed to add platform: {platform_handle} for org_id: {org_id}, cannot continue")
                 self._logger.exception(e)
+        if self._add_sensors:
+            self._xenia_db.addNewSensor('precipitation_radar_weighted_average', 'mm',
+                                        platform_handle,
+                                        1,
+                                        0,
+                                        1, None, True)
+
         return
 
     def save(self, xmrg_results_data):
@@ -74,13 +81,6 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                 if avg != None:
                     if avg > 0.0 or self._save_all_precip_values:
                         if avg != -9999:
-
-                            if self._add_sensors:
-                                self._xenia_db.addNewSensor('precipitation_radar_weighted_average', 'mm',
-                                                            platform_handle,
-                                                            1,
-                                                            0,
-                                                            1, None, True)
                             # Build a dict of m_type and sensor_id for each platform to make the inserts
                             # quicker.
                             if platform_handle not in self.sensor_ids:
