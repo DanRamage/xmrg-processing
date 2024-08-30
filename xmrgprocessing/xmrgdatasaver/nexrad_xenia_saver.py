@@ -138,21 +138,6 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                         f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} updated "
                                         f"weighted avg: {avg} in {time.time() - add_obs_start_time} seconds.")
 
-                                '''
-                                try:
-                                    add_obs_start_time = time.time()
-                                    db_update_rec = update(multi_obs) \
-                                        .values({"m_value": avg}) \
-                                        .where(multi_obs.platform_handle == platform_handle) \
-                                        .where(multi_obs.m_type_id == self.sensor_ids[platform_handle]['m_type_id']) \
-                                        .where(multi_obs.sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
-                                        .where(multi_obs.m_date == xmrg_results_data.datetime)
-
-                                    self._xenia_db.connection.execute(db_update_rec)
-                                except Exception as e:
-                                    self._logger.exception(e)
-                                '''
-
                         else:
                             self._logger.debug(
                                 f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} weighted avg: {avg}(mm)"
