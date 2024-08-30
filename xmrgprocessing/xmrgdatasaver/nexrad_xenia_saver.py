@@ -19,7 +19,14 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
         self.sensor_ids = {}
         self.row_entry_date = datetime.now()
         self._logger = logging.getLogger()
-
+        self._new_records_added = 0
+        self._records_updated = 0
+    @property
+    def new_records_added(self):
+        return self._new_records_added
+    @property
+    def records_updated(self):
+        return self._records_updated
     def check_exists(self, platform_handle, xmrg_results_data):
         org, platform_name, platform_type = platform_handle.split('.')
         self._logger.info(f"Checking organisation: {org} and platforms: {platform_handle} exist.")
@@ -119,6 +126,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                             try:
                                 self._xenia_db.session.add(db_rec)
                                 self._xenia_db.session.commit()
+                                self._new_records_added += 1
                             # Trying to add record that already exists.
                             except exc.IntegrityError as e:
                                 self._xenia_db.session.rollback()
@@ -131,6 +139,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                         .filter(multi_obs.sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
                                         .update({"m_value": avg})
                                     self._xenia_db.session.commit()
+                                    self._records_updated += 1
                                 except Exception as e:
                                     self._logger.exception(e)
                                 else:

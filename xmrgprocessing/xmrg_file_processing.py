@@ -1,5 +1,8 @@
+import logging
+import time
 from .xmrg_processing import xmrg_processing_geopandas
 from .xmrg_utilities import download_files, file_list_from_date_range
+from .xmrg_results import xmrg_results
 
 
 
@@ -20,15 +23,25 @@ class xmrg_file_processing:
         self._download_directory = "./"
         self._xmrg_url = ""
         self._data_saver = kwargs['data_saver']
-    def process_results_callback(self, xmrg_results):
+
+        self._logger = logging.getLogger(kwargs.get("logger_name", ""))
+    @property
+    def new_records_added(self):
+        return self._data_saver.new_records_added
+    @property
+    def records_updated(self):
+        return self._data_saver.records_updated
+    def process_results_callback(self, xmrg_results: xmrg_results):
         self._data_saver.save(xmrg_results)
         return
 
     def process(self, **kwargs):
+        start_time = time.time()
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
         download_directory = kwargs['download_directory']
         xmrg_url = kwargs['xmrg_url']
+        self._logger.info(f"process started. Start date: {start_date} End date: {end_date}")
 
         hours_delta = int((end_date - start_date).seconds / 3600)
         if hours_delta < 1:
@@ -38,4 +51,7 @@ class xmrg_file_processing:
         self._file_list = download_files(file_list, download_directory, xmrg_url)
 
         self._xmrg_proc.import_files(self._file_list)
+
+        self._logger.info(f"process finished in {time.time()-start_time} seconds. Added: "
+                          f"{self._xmrg_proc.new_records_added} recs Updated: {self._xmrg_proc.records_updated} recs")
 
