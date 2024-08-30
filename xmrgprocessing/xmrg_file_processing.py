@@ -53,5 +53,5 @@ class xmrg_file_processing:
         self._xmrg_proc.import_files(self._file_list)
 
         self._logger.info(f"process finished in {time.time()-start_time} seconds. Added: "
-                          f"{self._xmrg_proc.new_records_added} recs Updated: {self._xmrg_proc.records_updated} recs")
+                          f"{self.new_records_added} recs Updated: {self.records_updated} recs")
 
