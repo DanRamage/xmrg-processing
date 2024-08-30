@@ -6,7 +6,7 @@ from .xmrg_utilities import download_files, file_list_from_date_range
 class xmrg_file_processing:
     def __init__(self, **kwargs):
         self._xmrg_proc = xmrg_processing_geopandas()
-        self._xmrg_proc.setup(worker_process_count=1,
+        self._xmrg_proc.setup(worker_process_count=kwargs['worker_process_count'],
                     min_latitude_longitude=kwargs['min_latitude_longitude'],
                     max_latitude_longitude=kwargs['max_latitude_longitude'],
                     save_all_precip_values=kwargs["save_all_precip_values"],
