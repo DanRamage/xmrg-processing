@@ -22,12 +22,13 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
 
     def check_exists(self, platform_handle, xmrg_results_data):
         org, platform_name, platform_type = platform_handle.split('.')
+        self._logger.info(f"Checking organisation: {org} and platforms: {platform_handle} exist.")
         org_id = self._xenia_db.organizationExists(org)
         if org_id is None:
             org_id = self._xenia_db.addOrganization(rowEntryDate=self.row_entry_date, organizationName=org)
         # Add the platforms to represent the watersheds and drainage basins
         if self._xenia_db.platformExists(platform_handle) is None:
-            self._logger.debug(f"Adding platform. Org: {org_id} Platform Handle: {platform_handle} "
+            self._logger.info(f"Adding platform. Org: {org_id} Platform Handle: {platform_handle} "
                                f"Short_Name: {platform_name}")
             # Figure out the center of the boundaries, we'll then use that for the latitude and longitude
             # of the platform.
@@ -47,6 +48,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                 self._xenia_db.session.add(platform_rec)
                 self._xenia_db.session.commit()
             except Exception as e:
+                self._xenia_db.session.rollback()
                 self._logger.error(f"Failed to add platform: {platform_handle} for org_id: {org_id}, cannot continue")
                 self._logger.exception(e)
         return
