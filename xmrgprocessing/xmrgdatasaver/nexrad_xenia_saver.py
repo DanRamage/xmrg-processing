@@ -1,6 +1,6 @@
 import logging
 
-from nexrad_data_saver import precipitation_saver
+from .nexrad_data_saver import precipitation_saver
 from xeniadbutilities.xeniaSQLiteAlchemy import xeniaAlchemy, multi_obs, platform
 from datetime import datetime
 import sqlite3
