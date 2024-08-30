@@ -21,13 +21,17 @@ def process_xmrg_file_geopandas(**kwargs):
             base_log_output_directory = kwargs.get('base_log_output_directory', f'process_xmrg_file_geopandas.log')
             log_output_filename = os.path.join(base_log_output_directory,
                                                f"process_xmrg_file_geopandas-{process_name}.log")
+            error_log_output_filename = os.path.join(base_log_output_directory,
+                                               f"process_xmrg_file_geopandas_errors-{process_name}.log")
 
             logger = logging.getLogger("process_xmrg_file_geopandas")
             logger.setLevel(logging.DEBUG)
             formatter = logging.Formatter("%(asctime)s,%(levelname)s,%(funcName)s,%(lineno)d,%(message)s")
             fh = logging.handlers.RotatingFileHandler(log_output_filename)
+            error_fh = logging.handlers.RotatingFileHandler(error_log_output_filename)
             ch = logging.StreamHandler()
             fh.setLevel(logging.DEBUG)
+            error_fh.setLevel(logging.ERROR)
             ch.setLevel(logging.DEBUG)
             fh.setFormatter(formatter)
             ch.setFormatter(formatter)
