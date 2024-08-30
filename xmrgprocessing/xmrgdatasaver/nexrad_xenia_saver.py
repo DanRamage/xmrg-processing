@@ -115,10 +115,8 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                 self._xenia_db.session.commit()
                             # Trying to add record that already exists.
                             except exc.IntegrityError as e:
-                                self.session.rollback()
-                                if (self._logger != None):
-                                    self._logger.error("Record already exists.")
-                                    # self._logger.exception(e)
+                                self._xenia_db.session.rollback()
+                                self._logger.error("Record already exists.")
                                 try:
                                     add_obs_start_time = time.time()
                                     db_update_rec = update(multi_obs)\
