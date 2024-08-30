@@ -7,6 +7,8 @@ import sqlite3
 from sqlalchemy import select, update, exc
 import time
 from shapely.ops import unary_union
+
+
 class nexrad_xenia_sqlite_saver(precipitation_saver):
     def __init__(self, sqlite_file):
         self._xenia_db = xeniaAlchemy()
@@ -17,6 +19,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
         self.sensor_ids = {}
         self.row_entry_date = datetime.now()
         self._logger = logging.getLogger()
+
     def check_exists(self, platform_handle, xmrg_results_data):
         org, platform_name, platform_type = platform_handle.split('.')
         org_id = self._xenia_db.organizationExists(org)
@@ -25,9 +28,9 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
         # Add the platforms to represent the watersheds and drainage basins
         if self._xenia_db.platformExists(platform_handle) is None:
             self._logger.debug(f"Adding platform. Org: {org_id} Platform Handle: {platform_handle} "
-                              f"Short_Name: {platform_name}")
-            #Figure out the center of the boundaries, we'll then use that for the latitude and longitude
-            #of the platform.
+                               f"Short_Name: {platform_name}")
+            # Figure out the center of the boundaries, we'll then use that for the latitude and longitude
+            # of the platform.
             boundary_grid_data = xmrg_results_data.get_boundary_grid(platform_name)
             poly_list = [x[0] for x in boundary_grid_data]
             combined_polygons = unary_union(poly_list)
@@ -70,16 +73,16 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
 
                         if self._add_sensors:
                             self._xenia_db.addNewSensor('precipitation_radar_weighted_average', 'mm',
-                                                    platform_handle,
-                                                    1,
-                                                    0,
-                                                    1, None, True)
+                                                        platform_handle,
+                                                        1,
+                                                        0,
+                                                        1, None, True)
                         # Build a dict of m_type and sensor_id for each platform to make the inserts
                         # quicker.
                         if platform_handle not in self.sensor_ids:
                             try:
-                                platform_info = self._xenia_db.session.query(platform)\
-                                    .filter(platform.platform_handle == platform_handle)\
+                                platform_info = self._xenia_db.session.query(platform) \
+                                    .filter(platform.platform_handle == platform_handle) \
                                     .one()
                             except Exception as e:
                                 self._logger.exception(e)
@@ -88,7 +91,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                                                        'mm')
                                 sensor_id = self._xenia_db.sensorExists('precipitation_radar_weighted_average',
                                                                         'mm',
-                                                                       platform_handle, 1)
+                                                                        platform_handle, 1)
                                 self.sensor_ids[platform_handle] = {
                                     'latitude': platform_info.fixed_latitude,
                                     'longitude': platform_info.fixed_longitude,
@@ -119,12 +122,12 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                 self._logger.error("Record already exists.")
                                 try:
                                     add_obs_start_time = time.time()
-                                    db_update_rec = update(multi_obs)\
-                                        .values({"m_value": avg})\
-                                        .where(multi_obs.platform_handle == platform_handle)\
-                                        .where(m_type_id=self.sensor_ids[platform_handle]['m_type_id'])\
-                                        .where(sensor_id=self.sensor_ids[platform_handle]['sensor_id'])\
-                                        .where(m_date=xmrg_results_data.datetime)
+                                    db_update_rec = update(multi_obs) \
+                                        .values({"m_value": avg}) \
+                                        .where(multi_obs.platform_handle == platform_handle) \
+                                        .where(m_type_id == self.sensor_ids[platform_handle]['m_type_id']) \
+                                        .where(sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
+                                        .where(m_date == xmrg_results_data.datetime)
 
                                     self._xenia_db.connection.execute(db_update_rec)
                                 except Exception as e:
@@ -147,8 +150,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                         f"not set to add precip values of 0.0.")
             else:
                 self._logger.error(f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} "
-                                  f"Weighted AVG error")
-
+                                   f"Weighted AVG error")
 
         self._check_exists = False
         return
