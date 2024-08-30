@@ -1,5 +1,5 @@
-from xmrg_processing import xmrg_processing_geopandas
-from xmrg_utilities import download_files, file_list_from_date_range
+from .xmrg_processing import xmrg_processing_geopandas
+from .xmrg_utilities import download_files, file_list_from_date_range
 
 
 
