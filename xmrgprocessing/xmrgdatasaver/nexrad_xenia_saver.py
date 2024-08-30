@@ -125,9 +125,9 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                                     db_update_rec = update(multi_obs) \
                                         .values({"m_value": avg}) \
                                         .where(multi_obs.platform_handle == platform_handle) \
-                                        .where(m_type_id == self.sensor_ids[platform_handle]['m_type_id']) \
-                                        .where(sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
-                                        .where(m_date == xmrg_results_data.datetime)
+                                        .where(multi_obs.m_type_id == self.sensor_ids[platform_handle]['m_type_id']) \
+                                        .where(multi_obs.sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
+                                        .where(multi_obs.m_date == xmrg_results_data.datetime)
 
                                     self._xenia_db.connection.execute(db_update_rec)
                                 except Exception as e:
