@@ -63,6 +63,7 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                 self.kml_time_series.append(xmrg_results_data)
             '''
             platform_handle = "nws.%s.radarcoverage" % (boundary_name)
+            self.info(f"Saving platform: {platform_handle} {xmrg_results_data.datetime}")
             if self._check_exists:
                 self.check_exists(platform_handle, xmrg_results_data)
             lat = 0.0
