@@ -106,43 +106,41 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
                             # weighted averages, instead of keeping lots of radar data in the radar table, we calc the avg and
                             # store it as an obs in the multi-obs table.
                             add_obs_start_time = time.time()
+                            db_rec = multi_obs(
+                                row_entry_date=self.row_entry_date,
+                                platform_handle=platform_handle,
+                                sensor_id=self.sensor_ids[platform_handle]['sensor_id'],
+                                m_type_id=self.sensor_ids[platform_handle]['m_type_id'],
+                                m_date=xmrg_results_data.datetime,
+                                m_lon=self.sensor_ids[platform_handle]['latitude'],
+                                m_lat=self.sensor_ids[platform_handle]['longitude'],
+                                m_value=avg
+                            )
                             try:
-                                db_rec = multi_obs(
-                                    row_entry_date=self.row_entry_date,
-                                    platform_handle=platform_handle,
-                                    sensor_id=self.sensor_ids[platform_handle]['sensor_id'],
-                                    m_type_id=self.sensor_ids[platform_handle]['m_type_id'],
-                                    m_date=xmrg_results_data.datetime,
-                                    m_lon=self.sensor_ids[platform_handle]['latitude'],
-                                    m_lat=self.sensor_ids[platform_handle]['longitude'],
-                                    m_value=avg
-                                )
+                                self._xenia_db.session.add(db_rec)
+                                self._xenia_db.session.commit()
+                            # Trying to add record that already exists.
+                            except exc.IntegrityError as e:
+                                self._xenia_db.session.rollback()
+                                self._logger.error("Record already exists.")
+                                '''
                                 try:
-                                    self._xenia_db.session.add(db_rec)
-                                    self._xenia_db.session.commit()
-                                # Trying to add record that already exists.
-                                except exc.IntegrityError as e:
-                                    self._xenia_db.session.rollback()
-                                    self._logger.error("Record already exists.")
-                                    try:
-                                        add_obs_start_time = time.time()
-                                        db_update_rec = update(multi_obs) \
-                                            .values({"m_value": avg}) \
-                                            .where(multi_obs.platform_handle == platform_handle) \
-                                            .where(multi_obs.m_type_id == self.sensor_ids[platform_handle]['m_type_id']) \
-                                            .where(multi_obs.sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
-                                            .where(multi_obs.m_date == xmrg_results_data.datetime)
+                                    add_obs_start_time = time.time()
+                                    db_update_rec = update(multi_obs) \
+                                        .values({"m_value": avg}) \
+                                        .where(multi_obs.platform_handle == platform_handle) \
+                                        .where(multi_obs.m_type_id == self.sensor_ids[platform_handle]['m_type_id']) \
+                                        .where(multi_obs.sensor_id == self.sensor_ids[platform_handle]['sensor_id']) \
+                                        .where(multi_obs.m_date == xmrg_results_data.datetime)
 
-                                        self._xenia_db.connection.execute(db_update_rec)
-                                    except Exception as e:
-                                        self._logger.exception(e)
-                                    else:
-                                        self._logger.debug(
-                                            f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} updated "
-                                            f"weighted avg: {avg} in {time.time() - add_obs_start_time} seconds.")
-
-                            except Exception as e:
-                                self._logger.exception(e)
+                                    self._xenia_db.connection.execute(db_update_rec)
+                                except Exception as e:
+                                    self._logger.exception(e)
+                                else:
+                                    self._logger.debug(
+                                        f"Platform: {platform_handle} Date: {xmrg_results_data.datetime} updated "
+                                        f"weighted avg: {avg} in {time.time() - add_obs_start_time} seconds.")
+                                '''
 
                         else:
                             self._logger.debug(
