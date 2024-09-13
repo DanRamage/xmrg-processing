@@ -43,7 +43,8 @@ class xmrg_file_processing:
         xmrg_url = kwargs['xmrg_url']
         self._logger.info(f"process started. Start date: {start_date} End date: {end_date}")
 
-        hours_delta = int((end_date - start_date).seconds / 3600)
+        delta = end_date - start_date
+        hours_delta = delta.days * 24 + int((end_date - start_date).seconds / 3600)
         if hours_delta < 1:
             hours_delta = 1
         file_list = file_list_from_date_range(start_date, hours_delta)
