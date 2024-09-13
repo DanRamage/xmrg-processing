@@ -53,5 +53,7 @@ class xmrg_file_processing:
 
         self._xmrg_proc.import_files(self._file_list)
 
+        self._data_saver.finalize()
+
         self._logger.info(f"process finished in {time.time()-start_time} seconds.")
 
