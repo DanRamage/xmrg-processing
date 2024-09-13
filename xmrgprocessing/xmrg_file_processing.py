@@ -44,10 +44,10 @@ class xmrg_file_processing:
         self._logger.info(f"process started. Start date: {start_date} End date: {end_date}")
 
         delta = end_date - start_date
-        hours_delta = delta.days * 24 + int((end_date - start_date).seconds / 3600)
+        hours_delta = delta.days * 24 + int(delta.seconds / 3600)
         if hours_delta < 1:
             hours_delta = 1
-        file_list = file_list_from_date_range(start_date, hours_delta)
+        file_list = file_list_from_date_range(end_date, hours_delta)
 
         self._file_list = download_files(file_list, download_directory, xmrg_url)
 
