@@ -9,5 +9,7 @@ class precipitation_saver(ABC):
     def save(self, data):
         pass
 
-
+    @abstractmethod
+    def finalize(self):
+        pass
 
