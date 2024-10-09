@@ -54,7 +54,7 @@ class xmrg_file_iterator:
         :return:
         '''
         file_year = file_date.year
-        file_month = file_date.month
+        file_month = file_date.strptime('%b')
 
         xmrg_path = Path(path_template.format(base_path=base_path,
                                               year=file_year,
