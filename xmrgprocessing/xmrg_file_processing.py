@@ -3,7 +3,7 @@ import time
 from .xmrg_processing import xmrg_processing_geopandas
 from .xmrg_utilities import download_files, file_list_from_date_range
 from .xmrg_results import xmrg_results
-from xmrgfileiterator.xmrg_file_iterator import xmrg_file_iterator
+from .xmrgfileiterator.xmrg_file_iterator import xmrg_file_iterator
 
 
 class xmrg_file_processing:
