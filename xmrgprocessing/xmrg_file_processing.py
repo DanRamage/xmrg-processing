@@ -40,12 +40,11 @@ class xmrg_file_processing:
         start_time = time.time()
         start_date = kwargs['start_date']
         end_date = kwargs['end_date']
-        download_directory = kwargs['download_directory']
-        xmrg_url = kwargs['xmrg_url']
+        base_xmrg_directory = kwargs['base_xmrg_directory']
 
         self._file_list_iterator.setup_iterator(start_date=start_date,
                                                 end_date=end_date,
-                                                base_xmrg_path=self._base_xmrg_path)
+                                                base_xmrg_path=base_xmrg_directory)
         self._logger.info(f"process started. Start date: {start_date} End date: {end_date}")
 
         delta = end_date - start_date
