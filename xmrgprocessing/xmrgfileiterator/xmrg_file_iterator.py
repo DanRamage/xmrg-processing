@@ -34,13 +34,13 @@ class xmrg_file_iterator:
             self._logger.exception(e)
         else:
             if self._current_iterate_date < self._end_date:
-                full_filepath = self.get_path(self._current_iterate_date,
-                                               file_name,
-                                               self._base_xmrg_path,
-                                               DEFAULT_XMRG_PATH)
-            if self._full_xmrg_path is None:
-                full_filepath = os.path.join(self._full_xmrg_path, file_name)
-
+                if self._full_xmrg_path is None:
+                    full_filepath = self.get_path(self._current_iterate_date,
+                                                   file_name,
+                                                   self._base_xmrg_path,
+                                                   DEFAULT_XMRG_PATH)
+                else:
+                    full_filepath = os.path.join(self._full_xmrg_path, file_name)
 
         return full_filepath
 
