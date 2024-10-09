@@ -163,3 +163,5 @@ class nexrad_xenia_sqlite_saver(precipitation_saver):
         except Exception as e:
             self._logger.exception(e)
         return
+    def finalize(self):
+        self._xenia_db.disconnect()
