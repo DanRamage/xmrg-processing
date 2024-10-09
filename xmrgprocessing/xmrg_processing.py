@@ -205,7 +205,7 @@ class xmrg_processing_geopandas:
         self._callback_function = kwargs.get("callback_function", None)
         self._base_log_output_directory = kwargs.get("base_log_output_directory", "")
 
-    def import_files(self, file_list):
+    def import_files(self, file_list_iterator):
         self.logger.debug("Start import_files")
 
         workers = self._worker_process_count
@@ -213,9 +213,9 @@ class xmrg_processing_geopandas:
         result_queue = Queue()
         processes = []
 
-        self.logger.info("Importing: %d files." % (len(file_list)))
-        for file_name in file_list:
-            input_queue.put(file_name)
+        #self.logger.info("Importing: %d files." % (len(file_list)))
+        #for file_name in file_list:
+        #    input_queue.put(file_name)
 
         # Start up the worker processes.
         for workerNum in range(workers):
@@ -236,17 +236,20 @@ class xmrg_processing_geopandas:
                 self.logger.debug("Starting process: %s" % (p._name))
             p.start()
             processes.append(p)
-            input_queue.put('STOP')
 
         rec_count = 0
         self.logger.debug("Waiting for %d processes to complete" % (workers))
-        while any([(checkJob is not None and checkJob.is_alive()) for checkJob in processes]):
-            if not result_queue.empty():
-                # finalResults.append(resultQueue.get())
-                if (rec_count % 10) == 0:
-                    self.logger.debug(f"Processed {rec_count} results")
-                self.process_result(result_queue.get())
-                rec_count += 1
+        for xmrg_file in file_list_iterator:
+            input_queue.put(xmrg_file)
+            while any([(checkJob is not None and checkJob.is_alive()) for checkJob in processes]):
+                if not result_queue.empty():
+                    # finalResults.append(resultQueue.get())
+                    if (rec_count % 10) == 0:
+                        self.logger.debug(f"Processed {rec_count} results")
+                    self.process_result(result_queue.get())
+                    rec_count += 1
+
+        input_queue.put('STOP')
 
         # Poll the queue once more to get any remaining records.
         while not result_queue.empty():

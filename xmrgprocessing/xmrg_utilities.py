@@ -66,13 +66,14 @@ def file_list_from_date_range(start_date_time, hour_count, xmrg_file_extension='
 def build_filename(date_time, xmrg_file_ext):
     try:
         file_name = date_time.strftime('xmrg%m%d%Y%Hz')
-        file_name = f"{file_name}.{xmrg_file_ext}"
+        if len(xmrg_file_ext):
+            file_name = f"{file_name}.{xmrg_file_ext}"
         return file_name
     except Exception as e:
         raise e
 
 
-def http_download_file(download_url, file_name, destination_directory):
+def http_download_file(download_url: str, file_name: str, destination_directory: str):
     start_time = time.time()
     remote_filename_url = os.path.join(download_url, file_name)
     logger.info("Downloading file: %s" % (remote_filename_url))
