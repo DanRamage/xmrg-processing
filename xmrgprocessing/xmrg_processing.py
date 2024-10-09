@@ -239,9 +239,13 @@ class xmrg_processing_geopandas:
 
         rec_count = 0
         self.logger.debug("Waiting for %d processes to complete" % (workers))
-        for xmrg_file in file_list_iterator:
-            input_queue.put(xmrg_file)
-            while any([(checkJob is not None and checkJob.is_alive()) for checkJob in processes]):
+        while any([(checkJob is not None and checkJob.is_alive()) for checkJob in processes]):
+            for xmrg_file in file_list_iterator:
+                if xmrg_file is not None:
+                    input_queue.put(xmrg_file)
+                else:
+                    input_queue.put('STOP')
+
                 if not result_queue.empty():
                     # finalResults.append(resultQueue.get())
                     if (rec_count % 10) == 0:
