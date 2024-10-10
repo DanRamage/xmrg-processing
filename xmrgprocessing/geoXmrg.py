@@ -57,21 +57,34 @@ class geoXmrg:
         self.lastErrorMsg = ''
         self.xmrgFile.close()
 
-    """
-    Function: openFile
-    Purpose: Attempts to open the file given in the filePath string. If the file is compressed using gzip, this will uncompress
-      the file as well.
-    Parameters:
-      filePath is a string with the full path to the file to open.
-    Return:
-      True if successful, otherwise False.
-    """
-
+    def uncompress(self, file_name: str):
+        directory, xmrg_filename = os.path.split(file_name)
+        xmrg_filename, xmrg_extension = os.path.splitext(xmrg_filename)
+        # Is the file compressed? If so, we want to uncompress it to a file for use.
+        # The reason for not working with the GzipFile object directly is it is not compatible
+        # with the array.fromfile() functionality.
+        if xmrg_extension == 'gz':
+            self.compressedFilepath = file_name
+            try:
+                self.fileName = xmrg_filename
+                with gzip.GzipFile(file_name, 'rb') as zipFile, open(self.fileName, mode='wb') as self.xmrgFile:
+                    shutil.copyfileobj(zipFile, self.xmrgFile)
+            except (IOError, Exception) as e:
+                raise e
+        return
     def openFile(self, filePath):
+        '''
+        Purpose: Attempts to open the file given in the filePath string. If the file is compressed using gzip, this will uncompress
+          the file as well.
+
+        :param filePath: is a string with the full path to the file to open.
+        :return:
+        '''
         self.fileName = filePath
         self.compressedFilepath = ''
-        retVal = False
         try:
+            self.uncompress(self.fileName)
+            '''
             # Is the file compressed? If so, we want to uncompress it to a file for use.
             # The reason for not working with the GzipFile object directly is it is not compatible
             # with the array.fromfile() functionality.
@@ -83,10 +96,8 @@ class geoXmrg:
                     try:
                         zipFile = gzip.GzipFile(filePath, 'rb')
                         contents = zipFile.read()
-                    except IOError as e:
-                        if self.logger:
-                            self.logger.error("Does not appear to be valid gzip file. Attempting normal open.")
-                            self.logger.exception(e)
+                    except Exception as e:
+                        raise e
                     else:
                         self.fileName = parts[0]
                         self.xmrgFile = open(self.fileName, mode='wb')
@@ -101,18 +112,11 @@ class geoXmrg:
                         if self.logger:
                             self.logger.error("Does not appear to be valid gzip file. Attempting normal open.")
                             self.logger.exception(e)
-
+            '''
             self.xmrgFile = open(self.fileName, mode='rb')
-            retVal = True
-        except Exception as E:
-            import traceback
-            self.lastErrorMsg = traceback.format_exc()
-            if (self.logger != None):
-                self.logger.error(self.lastErrorMsg)
-            else:
-                print(self.lastErrorMsg)
-
-        return (retVal)
+        except Exception as e:
+            self.logger.exception(e)
+            raise e
 
     """
    Function: cleanUp

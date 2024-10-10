@@ -89,7 +89,7 @@ def process_xmrg_file_geopandas(**kwargs):
                 try:
                     gpXmrg.openFile(xmrg_filename)
                 except Exception as e:
-                    logger.error("ID: %s Process: %s Failed to process file: %s" \
+                    logger.error("ID: %s Process: %s Failed to open file: %s" \
                                  % (current_process().name, current_process().name, xmrg_filename))
                     logger.exception(e)
                 else:
