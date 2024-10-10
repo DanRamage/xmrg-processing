@@ -63,7 +63,7 @@ class geoXmrg:
         # Is the file compressed? If so, we want to uncompress it to a file for use.
         # The reason for not working with the GzipFile object directly is it is not compatible
         # with the array.fromfile() functionality.
-        if xmrg_extension == 'gz':
+        if xmrg_extension == '.gz':
             self.compressedFilepath = file_name
             try:
                 self.fileName = xmrg_filename
