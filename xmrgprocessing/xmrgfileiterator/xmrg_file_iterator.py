@@ -15,13 +15,14 @@ class xmrg_file_iterator:
         self._logger = logging.getLogger('xmrg_file_iterator')
         self._file_list = []
         #We can provide the full path to where all the XMRG files would be.
-        self._full_xmrg_path = None
+        self._full_xmrg_path = kwargs.get('full_xmrg_path', None)
         #If we are using the /year/month template for the xmrg files, the
         #base_xmrg_path is the parent directory where those sub-directories begin.
-        self._base_xmrg_path = None
-        self._start_date = None
-        self._end_date = None
-        self._current_iterate_date = None
+        self._base_xmrg_path = kwargs.get('base_xmrg_path', None)
+
+        self._start_date = kwargs.get('start_date', None)
+        self._end_date = kwargs.get('end_date', None)
+        self._current_iterate_date = self._start_date
 
     def __iter__(self):
         return self
@@ -62,7 +63,7 @@ class xmrg_file_iterator:
         xmrg_path = os.path.join(xmrg_path, file_name)
         return xmrg_path
 
-    def setup_iterator(self, **kwargs):
+    def  setup_iterator(self, **kwargs):
         self._full_xmrg_path = kwargs.get('full_xmrg_path', None)
         self._base_xmrg_path = kwargs.get('base_xmrg_path', None)
 
