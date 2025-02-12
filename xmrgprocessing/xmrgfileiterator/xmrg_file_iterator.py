@@ -43,6 +43,8 @@ class xmrg_file_iterator:
                                                    DEFAULT_XMRG_PATH)
                 else:
                     full_filepath = os.path.join(self._full_xmrg_path, file_name)
+            else:
+                raise StopIteration
             #The data files are hourly, so increment are iterate date by an hour.
             self._current_iterate_date += timedelta(hours=1)
         return full_filepath
