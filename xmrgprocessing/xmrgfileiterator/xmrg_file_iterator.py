@@ -1,5 +1,6 @@
 import os
 import logging.config
+from datetime import timedelta
 from pathlib import Path
 from string import Template
 
@@ -42,7 +43,8 @@ class xmrg_file_iterator:
                                                    DEFAULT_XMRG_PATH)
                 else:
                     full_filepath = os.path.join(self._full_xmrg_path, file_name)
-
+            #The data files are hourly, so increment are iterate date by an hour.
+            self._current_iterate_date += timedelta(hours=1)
         return full_filepath
 
     def get_path(self, file_date, file_name, base_path, path_template):
