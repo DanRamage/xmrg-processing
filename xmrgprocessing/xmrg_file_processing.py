@@ -14,6 +14,7 @@ class xmrg_file_processing:
                     max_latitude_longitude=kwargs['max_latitude_longitude'],
                     save_all_precip_values=kwargs["save_all_precip_values"],
                     boundaries=kwargs['boundaries'],
+                    source_file_working_directory=kwargs['source_file_working_directory'],
                     delete_source_file=kwargs['delete_source_file'],
                     delete_compressed_source_file=kwargs['delete_compressed_source_file'],
                     kml_output_directory=kwargs['kml_output_directory'],
@@ -21,6 +22,7 @@ class xmrg_file_processing:
                     base_log_output_directory=kwargs['base_log_directory'])
         #self._file_list = kwargs.get('file_list', [])
         self._file_list_iterator = kwargs.get('file_list_iterator', xmrg_file_iterator())
+        self._copy_file = kwargs.get('copy_source_file', False)
         self._download_directory = "./"
         self._xmrg_url = ""
         self._data_saver = kwargs['data_saver']
@@ -47,17 +49,6 @@ class xmrg_file_processing:
                                                 base_xmrg_path=base_xmrg_directory)
         self._logger.info(f"process started. Start date: {start_date} End date: {end_date}")
 
-        delta = end_date - start_date
-        hours_delta = delta.days * 24 + int(delta.seconds / 3600)
-        if hours_delta < 1:
-            hours_delta = 1
-        '''
-        file_list = file_list_from_date_range(end_date, hours_delta)
-
-        self._file_list = download_files(file_list, download_directory, xmrg_url)
-        
-        self._xmrg_proc.import_files(self._file_list)
-        '''
         self._xmrg_proc.import_files(self._file_list_iterator)
 
         self._data_saver.finalize()

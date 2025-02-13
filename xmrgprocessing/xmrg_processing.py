@@ -4,6 +4,7 @@ from multiprocessing import Process, Queue, current_process
 import time
 import pandas as pd
 import geopandas as gpd
+import shutil
 
 from .xmrg_results import xmrg_results
 from .geoXmrg import geoXmrg, LatLong
@@ -45,6 +46,8 @@ def process_xmrg_file_geopandas(**kwargs):
             inputQueue = kwargs['input_queue']
             resultsQueue = kwargs['results_queue']
             save_all_precip_vals = kwargs['save_all_precip_vals']
+            delete_source_file = kwargs['delete_source_file']
+            delete_compressed_source_file = kwargs['delete_compressed_source_file']
             # A course bounding box that restricts us to our area of interest.
             minLatLong = None
             maxLatLong = None
@@ -161,7 +164,10 @@ def process_xmrg_file_geopandas(**kwargs):
                                         logger.exception(e)
 
                             resultsQueue.put(gp_results)
-
+                            try:
+                                gpXmrg.cleanUp(delete_source_file, delete_compressed_source_file)
+                            except Exception as e:
+                                logger.exception(e)
                         else:
                             if logger:
                                 logger.error("ID: %s Process: %s Failed to process file: %s" \
@@ -185,6 +191,7 @@ class xmrg_processing_geopandas:
         self._max_latitude_longitude = None
         self._save_all_precip_values = False
         self._boundaries = []
+        self._source_file_working_directory = None
         self._delete_source_file = False
         self._delete_compressed_source_file = False
         self._kml_output_directory = None
@@ -194,15 +201,35 @@ class xmrg_processing_geopandas:
         self._worker_process_count = 4
 
     def setup(self, **kwargs):
+        #Number of Processes to spawn.
         self._worker_process_count = kwargs.get("worker_process_count", 4)
+
+        #The overall bounding box to trim the XMRG data to.
         self._min_latitude_longitude = kwargs.get("min_latitude_longitude", None)
         self._max_latitude_longitude = kwargs.get("max_latitude_longitude", None)
+
+        #Save all the preciptation values, not just > 0 ones.
         self._save_all_precip_values = kwargs.get("save_all_precip_values", False)
+
+        #The list of boundaries to process rain data for.
         self._boundaries = kwargs.get("boundaries", None)
+
+        #These next parameters deal with where we process the data files. We might be grabbing files
+        #from an archive, so we want to copy them to a working directory.
+        #If set, copy the XMRG files to this directory for processing.
+        self._source_file_working_directory = kwargs.get("source_file_working_directory", None)
+        #Delete the source file when it has been processed.
         self._delete_source_file = kwargs.get("delete_source_file", False)
+        #Delete the compressed file after processing
         self._delete_compressed_source_file = kwargs.get("delete_compressed_source_file", False)
+
+        #The directory to output the KML file we use for debugging.
         self._kml_output_directory = kwargs.get("kml_output_directory", None)
+
+        #Callback function used when we have a result.
         self._callback_function = kwargs.get("callback_function", None)
+
+        #Directory where logfiles are written.
         self._base_log_output_directory = kwargs.get("base_log_output_directory", "")
 
     def import_files(self, file_list_iterator):
@@ -241,10 +268,20 @@ class xmrg_processing_geopandas:
         self.logger.debug("Waiting for %d processes to complete" % (workers))
         while any([(checkJob is not None and checkJob.is_alive()) for checkJob in processes]):
             for xmrg_file in file_list_iterator:
-                if xmrg_file is not None:
-                    input_queue.put(xmrg_file)
-                else:
+                try:
+                    if xmrg_file is not None:
+                        file_to_process = xmrg_file
+                        #Copy the file to our local working directory
+                        if self._source_file_working_directory is not None:
+                            source_fullfilepath = os.path.join(self._source_file_working_directory, xmrg_file)
+                            shutil.copy2(xmrg_file, source_fullfilepath)
+                            file_to_process = source_fullfilepath
+                        input_queue.put(file_to_process)
+                except StopIteration:
+                    self.logger.info("Finished iterating files.")
                     input_queue.put('STOP')
+                except Exception as e:
+                    self.logger.exception(e)
 
                 if not result_queue.empty():
                     # finalResults.append(resultQueue.get())
