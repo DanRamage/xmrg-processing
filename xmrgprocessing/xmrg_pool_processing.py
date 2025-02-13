@@ -242,8 +242,9 @@ class xmrg_processing_geopandas:
             file_to_process = xmrg_file
             # Copy the file to our local working directory
             if self._source_file_working_directory is not None:
-                source_fullfilepath = os.path.join(self._source_file_working_directory, xmrg_file)
-                shutil.copy2(xmrg_file, source_fullfilepath)
+                xmrg_src_dir, xmrg_src_filename = os.path.split(xmrg_file)
+                source_fullfilepath = os.path.join(self._source_file_working_directory, xmrg_src_filename)
+                shutil.copy2(xmrg_file, self._source_file_working_directory)
                 file_to_process = source_fullfilepath
 
             input_queue.append({
