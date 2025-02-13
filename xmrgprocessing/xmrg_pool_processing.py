@@ -2,6 +2,8 @@ import os
 import logging
 from multiprocessing import Process, Pool, Queue, current_process
 import time
+from venv import logger
+
 import pandas as pd
 import geopandas as gpd
 import shutil
@@ -242,31 +244,35 @@ class xmrg_processing_geopandas:
             file_to_process = xmrg_file
             # Copy the file to our local working directory
             if self._source_file_working_directory is not None:
-                xmrg_src_dir, xmrg_src_filename = os.path.split(xmrg_file)
-                source_fullfilepath = os.path.join(self._source_file_working_directory, xmrg_src_filename)
-                shutil.copy2(xmrg_file, self._source_file_working_directory)
-                file_to_process = source_fullfilepath
+                try:
+                    xmrg_src_dir, xmrg_src_filename = os.path.split(xmrg_file)
+                    source_fullfilepath = os.path.join(self._source_file_working_directory, xmrg_src_filename)
+                    shutil.copy2(xmrg_file, self._source_file_working_directory)
+                    file_to_process = source_fullfilepath
+                except Exception as e:
+                    logger.exception(e)
+                    file_to_process = None
+            if file_to_process is not None:
+                input_queue.append({
+                    'xmrg_filename': file_to_process,
+                    'min_lat_lon': self._min_latitude_longitude,
+                    'max_lat_lon': self._max_latitude_longitude,
+                    'save_all_precip_vals': self._save_all_precip_values,
+                    'boundaries': self._boundaries,
+                    'delete_source_file': self._delete_source_file,
+                    'delete_compressed_source_file': self._delete_compressed_source_file,
+                    'debug_files_directory': self._kml_output_directory,
+                    'base_log_output_directory': self._base_log_output_directory
+                })
+                try:
+                    with Pool(self._number_of_workers) as pool:
+                        for results in pool.imap_unordered(process_xmrg_file_geopandas_pool, self._input_queue):
+                            for result in results:
+                                rec_count += 1
+                                self.process_result(result)
 
-            input_queue.append({
-                'xmrg_filename': file_to_process,
-                'min_lat_lon': self._min_latitude_longitude,
-                'max_lat_lon': self._max_latitude_longitude,
-                'save_all_precip_vals': self._save_all_precip_values,
-                'boundaries': self._boundaries,
-                'delete_source_file': self._delete_source_file,
-                'delete_compressed_source_file': self._delete_compressed_source_file,
-                'debug_files_directory': self._kml_output_directory,
-                'base_log_output_directory': self._base_log_output_directory
-            })
-            try:
-                with Pool(self._number_of_workers) as pool:
-                    for results in pool.imap_unordered(process_xmrg_file_geopandas_pool, self._input_queue):
-                        for result in results:
-                            rec_count += 1
-                            self.process_result(result)
-
-            except Exception as e:
-                self._logger.exception(e)
+                except Exception as e:
+                    self._logger.exception(e)
 
 
 
