@@ -188,7 +188,7 @@ def process_xmrg_file_geopandas_pool(kwargs, **args):
 
 class xmrg_processing_geopandas:
     def __init__(self):
-        self.logger = logging.getLogger()
+        self._logger = logging.getLogger()
         self._min_latitude_longitude = None
         self._max_latitude_longitude = None
         self._save_all_precip_values = False
@@ -235,7 +235,7 @@ class xmrg_processing_geopandas:
         self._base_log_output_directory = kwargs.get("base_log_output_directory", "")
 
     def import_files(self, file_list_iterator):
-        self.logger.debug("Start import_files")
+        self._logger.debug("Start import_files")
 
         input_queue = []
 
@@ -280,9 +280,9 @@ class xmrg_processing_geopandas:
         input_queue.put('STOP')
 
 
-        self.logger.info(f"Imported: {rec_count} records")
+        self._logger.info(f"Imported: {rec_count} records")
 
-        self.logger.debug("Finished import_files")
+        self._logger.debug("Finished import_files")
 
         return
 
