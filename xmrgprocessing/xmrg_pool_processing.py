@@ -265,7 +265,7 @@ class xmrg_processing_geopandas:
                     'base_log_output_directory': self._base_log_output_directory
                 })
                 try:
-                    with Pool(self._number_of_workers) as pool:
+                    with Pool(self._worker_process_count) as pool:
                         for results in pool.imap_unordered(process_xmrg_file_geopandas_pool, self._input_queue):
                             for result in results:
                                 rec_count += 1
