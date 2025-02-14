@@ -37,7 +37,7 @@ def process_xmrg_file_geopandas_pool(kwargs, **args):
             error_log_output_filename = os.path.join(base_log_output_directory,
                                                f"process_xmrg_file_geopandas_errors-{process_name}.log")
             debug_dir = kwargs['debug_files_directory']
-            resultsQueue = kwargs['results_queue']
+            #resultsQueue = kwargs['results_queue']
             save_all_precip_vals = kwargs['save_all_precip_vals']
             delete_source_file = kwargs['delete_source_file']
             delete_compressed_source_file = kwargs['delete_compressed_source_file']
