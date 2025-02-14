@@ -276,10 +276,6 @@ class xmrg_processing_geopandas:
 
 
 
-
-        input_queue.put('STOP')
-
-
         self._logger.info(f"Imported: {rec_count} records")
 
         self._logger.debug("Finished import_files")
