@@ -66,7 +66,7 @@ class geoXmrg:
         if xmrg_extension == '.gz':
             self.compressedFilepath = file_name
             try:
-                self.fileName = xmrg_filename
+                self.fileName = os.path.join(directory, xmrg_filename)
                 with gzip.GzipFile(file_name, 'rb') as zipFile, open(self.fileName, mode='wb') as self.xmrgFile:
                     shutil.copyfileobj(zipFile, self.xmrgFile)
             except (IOError, Exception) as e:
