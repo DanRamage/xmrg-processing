@@ -45,6 +45,13 @@ class geoXmrg:
         self._maximum_lat_lon = maximum_lat_lon
         self._data_multiplier = data_multiplier
 
+        self._epsg = 4326
+        self._geo_data_frame = None
+
+    @property
+    def geo_data_frame(self):
+        return self._geo_data_frame
+
     """
       Function: Reset
       Purpose: Prepares the xmrgFile object for reuse. Resets various variables and closes the currently open file object.
@@ -84,35 +91,6 @@ class geoXmrg:
         self.compressedFilepath = ''
         try:
             self.uncompress(self.fileName)
-            '''
-            # Is the file compressed? If so, we want to uncompress it to a file for use.
-            # The reason for not working with the GzipFile object directly is it is not compatible
-            # with the array.fromfile() functionality.
-            if (self.fileName.rfind('gz') != -1):
-                self.compressedFilepath = self.fileName
-                # SPlit the filename from the extension.
-                parts = self.fileName.split('.')
-                if sys.version_info[0] < 3:
-                    try:
-                        zipFile = gzip.GzipFile(filePath, 'rb')
-                        contents = zipFile.read()
-                    except Exception as e:
-                        raise e
-                    else:
-                        self.fileName = parts[0]
-                        self.xmrgFile = open(self.fileName, mode='wb')
-                        self.xmrgFile.writelines(contents)
-                        self.xmrgFile.close()
-                else:
-                    try:
-                        self.fileName = parts[0]
-                        with gzip.GzipFile(filePath, 'rb') as zipFile, open(self.fileName, mode='wb') as self.xmrgFile:
-                            shutil.copyfileobj(zipFile, self.xmrgFile)
-                    except (IOError, Exception) as e:
-                        if self.logger:
-                            self.logger.error("Does not appear to be valid gzip file. Attempting normal open.")
-                            self.logger.exception(e)
-            '''
             self.xmrgFile = open(self.fileName, mode='rb')
         except Exception as e:
             self.logger.exception(e)
@@ -374,7 +352,7 @@ class geoXmrg:
         geo_data_frame = gpd.GeoDataFrame(data_frame,
                                           geometry=data_frame.Grids)
         self._geo_data_frame = geo_data_frame.drop(columns=['Grids'])
-        self._geo_data_frame.set_crs(epsg=4326, inplace=True)
+        self._geo_data_frame.set_crs(epsg=self._epsg, inplace=True)
         return (True)
 
     def save_to_file(self, filename):
