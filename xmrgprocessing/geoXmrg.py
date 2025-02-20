@@ -468,7 +468,7 @@ class geoXmrg:
 
         dateformat = "%m%d%Y%H"
         # Regexp to see if we have one of the older filename formats like xmrg_MMDDYYYY_HRz_SE
-        fileParts = re.findall("xmrg_\d{8}_\d{1,2}", filetime)
+        fileParts = re.findall(r"xmrg_\d{8}_\d{1,2}", filetime)
         if (len(fileParts)):
             # Now let's manipulate the string to match the dateformat var above.
             filetime = re.sub("xmrg_", "", fileParts[0])
