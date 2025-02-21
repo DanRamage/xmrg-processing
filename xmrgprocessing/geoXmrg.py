@@ -108,8 +108,10 @@ class geoXmrg:
     def cleanUp(self, deleteFile, deleteCompressedFile):
         self.xmrgFile.close()
         if (deleteFile):
+            self.logger.info(f"Deleting uncompressed file: {self.fileName}")
             os.remove(self.fileName)
         if (deleteCompressedFile and len(self.compressedFilepath)):
+            self.logger.info(f"Deleting compressed file: {self.compressedFilepath}")
             os.remove(self.compressedFilepath)
         return
 
